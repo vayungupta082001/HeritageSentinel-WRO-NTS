@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Ancient Sword",
+    "category": "Weapons",
+    "era": "15th Century",
+    "image": "https://picsum.photos/600/400?random=1",
+    "description": "A sword used by medieval warriors in close combat."
+  },
+  {
+    "id": 2,
+    "name": "Royal Painting",
+    "category": "Paintings",
+    "era": "18th Century",
+    "image": "https://picsum.photos/600/400?random=2",
+    "description": "A portrait of a historical ruler from the royal family."
+  },
+  {
+    "id": 3,
+    "name": "Clay Pottery",
+    "category": "Pottery",
+    "era": "Ancient Civilization",
+    "image": "https://picsum.photos/600/400?random=3",
+    "description": "Traditional handcrafted pottery used for storage and rituals."
+  },
+  {
+    "id": 4,
+    "name": "Stone Sculpture",
+    "category": "Sculptures",
+    "era": "12th Century",
+    "image": "https://picsum.photos/600/400?random=4",
+    "description": "A sculpture carved from stone by skilled artisans."
+  },
+  {
+    "id": 5,
+    "name": "Bronze Helmet",
+    "category": "Weapons",
+    "era": "9th Century",
+    "image": "https://picsum.photos/600/400?random=5",
+    "description": "A protective helmet worn by ancient soldiers."
+  },
+  {
+    "id": 6,
+    "name": "Ceremonial Mask",
+    "category": "Sculptures",
+    "era": "14th Century",
+    "image": "https://picsum.photos/600/400?random=6",
+    "description": "A ritual mask used during cultural ceremonies."
+  }
+]

@@ -1,0 +1,79 @@
+{
+  "indexes": [
+    {
+      "__comment": "Active alerts ordered by creation time (alertService.subscribeToActiveAlerts)",
+      "collectionGroup": "alerts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "resolved",  "order": "ASCENDING"  },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "__comment": "Recent alerts log (alertService.subscribeToRecentAlerts)",
+      "collectionGroup": "alerts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "__comment": "Bot alerts for a specific bot (alertService.subscribeToBotAlerts)",
+      "collectionGroup": "alerts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "botUid",   "order": "ASCENDING"  },
+        { "fieldPath": "resolved", "order": "ASCENDING"  }
+      ]
+    },
+    {
+      "__comment": "Artifacts by category (artifactService.subscribeByCategory)",
+      "collectionGroup": "artifacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "category",    "order": "ASCENDING" },
+        { "fieldPath": "lastUpdated", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "__comment": "Artifacts with active alerts (artifactService.subscribeToAlertedArtifacts)",
+      "collectionGroup": "artifacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "alertCount",  "order": "ASCENDING"  },
+        { "fieldPath": "lastUpdated", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "__comment": "Bots by status (botService.subscribeToBotsByStatus)",
+      "collectionGroup": "bots",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",   "order": "ASCENDING"  },
+        { "fieldPath": "lastSeen", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "__comment": "Interactions by bot (future query support)",
+      "collectionGroup": "interactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "botUid",    "order": "ASCENDING"  },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "__comment": "Disable automatic single-field indexing on heavy text fields to save costs",
+      "collectionGroup": "artifacts",
+      "fieldPath": "context",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "artifacts",
+      "fieldPath": "interactivePrompt",
+      "indexes": []
+    }
+  ]
+}

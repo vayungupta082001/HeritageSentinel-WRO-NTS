@@ -1,0 +1,126 @@
+// ============================================================
+// firestore.rules  —  Firestore Security Rules
+// ============================================================
+// Deploy with: firebase deploy --only firestore:rules
+//
+// ARCHITECTURE DECISIONS:
+//  - /bots and /artifacts are readable by all authenticated users
+//    (museum staff & kiosk tablets). Writes are restricted to
+//    admin role or trusted server-side writes.
+//  - /alerts are readable by all auth users, writable by admin.
+//  - /admin and /system are read-only for regular users;
+//    admin role required to write.
+//  - /interactions are write-only from the client (append-only
+//    AI interaction log). Read requires admin role.
+//
+// For production: replace "request.auth != null" with role checks
+// using custom claims set by your Auth backend.
+// ============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      // In production: check custom claim
+      // return request.auth.token.role == 'admin';
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function isValidBotStatus() {
+      return request.resource.data.status in [
+        'idle', 'charging', 'tour', 'guide',
+        'alert', 'sentry', 'maintenance', 'offline'
+      ];
+    }
+
+    function notChangingUid() {
+      // Prevent UID tampering on updates
+      return !request.resource.data.keys().hasAny(['uid']) ||
+             request.resource.data.uid == resource.data.uid;
+    }
+
+    // ── /bots ─────────────────────────────────────────────────
+    // Museum staff can read all bots in real time.
+    // Only admin (or server SDK) can create/update bots.
+    match /bots/{botId} {
+      allow read: if isAuthenticated();
+
+      allow create: if isAdmin() && isValidBotStatus();
+
+      allow update: if isAdmin()
+        && isValidBotStatus()
+        && notChangingUid();
+
+      allow delete: if isAdmin();
+    }
+
+    // ── /artifacts ────────────────────────────────────────────
+    // Public-facing kiosks can read artifacts (visitor displays).
+    // Writes require admin role.
+    match /artifacts/{artifactId} {
+      allow read: if true; // public read — artifact info is non-sensitive
+
+      allow create, update: if isAdmin();
+      allow delete:         if isAdmin();
+    }
+
+    // ── /alerts ───────────────────────────────────────────────
+    // Staff can read alerts. Only admin or server writes alerts.
+    match /alerts/{alertId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin(); // resolving alerts
+      allow delete: if isAdmin();
+    }
+
+    // ── /interactions ─────────────────────────────────────────
+    // Any authenticated client (kiosk) can log a new interaction.
+    // Only admin can read the full log (privacy consideration).
+    match /interactions/{interactionId} {
+      allow create: if isAuthenticated()
+        && request.resource.data.keys().hasAll(['botUid', 'question', 'createdAt']);
+
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── /admin ────────────────────────────────────────────────
+    // Summary doc is read-only for staff (drives the dashboard).
+    // Only admin or Cloud Functions can write here.
+    match /admin/{docId} {
+      allow read:   if isAuthenticated();
+      allow write:  if isAdmin();
+    }
+
+    // ── /system ───────────────────────────────────────────────
+    // System config is read-only for clients.
+    // Only admin can change feature flags.
+    match /system/{docId} {
+      allow read:  if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ── /tours  /guides ───────────────────────────────────────
+    // Future collections: same access pattern as /artifacts.
+    match /tours/{tourId} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    match /guides/{guideId} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Deny everything else ──────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
